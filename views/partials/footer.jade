@@ -1,0 +1,9 @@
+footer
+  .container.text-center
+    p.pull-left © 2015 Raging Flame
+    ul.pull-right.list-inline
+      if !user
+        li(class=title=='Signup'?'active':undefined)
+          a(href='/signup') Signup
+      li
+        a(href='/contact') Contact

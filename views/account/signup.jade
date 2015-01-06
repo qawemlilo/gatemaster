@@ -1,0 +1,40 @@
+extends ../layout
+
+block content
+  .page-header
+    h3 Sign up
+  form.form-horizontal(id='signup-form', action="/signup" method='POST')
+    input(type='hidden', name='_csrf', value=_csrf)
+    .form-group
+      label.col-sm-3.control-label(for='name') Name
+      .col-sm-7
+        input.form-control(type='text', name='name', id='name', placeholder='Name', required="", autofocus)
+    
+    .form-group  
+      label.col-sm-3.control-label(for='cell') Cell Number
+      .col-sm-7
+        input.form-control(type='text', name='cell', id='cell', placeholder='Cell Number', required="")
+    
+    .form-group 
+      label.col-sm-3.control-label(for='complex') Where do you stay?
+      .col-sm-7
+        select.form-control(name='complex', id='complex', required="")
+          option Select
+          
+          for complex in complexs
+            option(value='#{complex.id}') #{complex.name}    
+    
+    .form-group
+      label.col-sm-3.control-label(for='password') Password
+      .col-sm-7
+        input.form-control(type='password', name='password', id='password', required="", placeholder='Password')
+    
+    .form-group
+      label.col-sm-3.control-label(for='confirmPassword') Confirm Password
+      .col-sm-7
+        input.form-control(type='password', name='confirmPassword', id='confirmPassword', required="", placeholder='Confirm Password')
+    .form-group
+      .col-sm-offset-3.col-sm-7
+        button.btn.btn-success(type='submit')
+          span.ion-person-add
+          | Signup
