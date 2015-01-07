@@ -1,6 +1,6 @@
 {
   "name": "gatemaster",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Gate remote control",
   "main": "app.js",
   "scripts": {
