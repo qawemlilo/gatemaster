@@ -18,11 +18,15 @@ var passport = require('passport');
 var expressValidator = require('express-validator');
 var connectAssets = require('connect-assets');
 var _ = require('lodash');
+var twilio = require('./controllers/twilio');
+var API = require('./api');
+var BasicStrategy = require('passport-http').BasicStrategy;
+var User = require('./models/user');
+
 
 /**
  * Controllers (route handlers).
  */
-
 var homeController = require('./controllers/home');
 var userController = require('./controllers/user');
 var complexController = require('./controllers/complex');
@@ -50,10 +54,34 @@ mongoose.connection.on('error', function() {
 });
 
 
+passport.use(new BasicStrategy(
+  function (cell, secret, done) {
+    // connect to database and query against id / secret
+    User.find({
+      cell: cell.trim().replace(/ /g, ''), 
+      secret: secret 
+    }, function(err, user) {
+      if (err) {
+        return done(err);
+      } else if (!user) {
+        return done(null, false);
+      }
+      return done(null, user);
+    })
+  }
+));
+
 /**
  * Express configuration.
 **/
-var csrfExclude = ['/complexs'];
+var csrfExclude = [
+  '/complexs', 
+  '/sms', 
+  '/call', 
+  '/inbound', 
+  '/api/users', 
+  '/api/users/:id'
+];
 
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
@@ -68,6 +96,20 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressValidator());
 app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use(cookieParser());
+
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+  next();
+});
+
 app.use(session({
   resave: true,
   saveUninitialized: true,
@@ -109,11 +151,55 @@ app.post('/login', userController.postLogin);
 app.get('/logout', userController.logout);
 app.get('/forgot', userController.getForgot);
 
-app.get('/complexs', complexController.fetch);
-app.post('/complexs', complexController.save);
-app.put('/complexs', complexController.update);
-app.delete('/complexs/:id', complexController.del);
 
+app.post('/sms', function (req, res, next) {
+  var cell = req.body.cell;
+  var message = req.body.message;
+
+  twilio.sendSMS(cell, message, function (err, response) {
+    if (err) {
+      return res.status(500).json({error: true, message: err.message});
+    }
+
+    res.json({error: false, message: 'Message sent!'});
+  });
+});
+
+app.post('/call', function(req, res) {
+  var number = req.body.number;
+
+  twilio.makeCall(number, function (error) {
+    if (error) {
+      res.status(500).json({error: true, message: error.message});
+    }
+    res.json({error: false, message: 'Call made'});
+  });
+});
+
+app.post('/inbound', function(req, res) {
+  var twilio = require('twilio');
+  var twiml = new twilio.TwimlResponse();
+
+  var options = {
+    voice: 'woman',
+    language: 'en-gb'
+  };
+
+  twiml.say('Hello Cathrine! You have won one million dollars for being awesome. lol, Zim dollars. Do not be mad at me, I was sent by Q, your friend', options);
+
+
+  res.writeHead(200, {
+    'Content-Type': 'text/xml'
+  });
+  res.end(twiml.toString());
+});
+
+
+
+/**
+ *  Application API
+**/
+//app.use('/api', passport.authenticate('basic', { session: false }), API);
 
 /**
  * 500 Error Handler.

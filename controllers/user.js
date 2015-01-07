@@ -99,7 +99,7 @@ exports.postSignup = function(req, res, next) {
 
       var text = 'Please make a payment of R100 for a 1 year contract to continue using the GateMaster App. Call 063 222 0269.'
 
-      twilio.sendSMS(user.number, text, function(err, responseData) {
+      twilio.sendSMS(user.cell, text, function(err, responseData) {
         if (err) console.log(err.message);
       });
 

@@ -8,20 +8,29 @@ var paymentSchema = new mongoose.Schema({
 
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    required: true
   },
 
   createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+
+  updatedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
 
   amount: {
-    type: Number
+    type: Number,
+    required: true
   },
 
   type: {
-    type: String
+    type: String,
+    required: true
   },
 
   createdAt: {

@@ -20,6 +20,10 @@ var userSchema = new mongoose.Schema({
     type: String
   },
 
+  secret: {
+    type: String
+  },
+
   role: {
     type: String,
     lowercase: true
@@ -32,7 +36,8 @@ var userSchema = new mongoose.Schema({
 
   complex: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Complex'
+    ref: 'Complex',
+    required: true
   },
 
   unitNumber: {

@@ -3,38 +3,35 @@ extends ../layout
 block content
   .page-header
     h3 Register
-  form.form-horizontal(id='signup-form', action="/signup" method='POST')
+
+  form(id='signup-form', action="/signup" method='POST')
     input(type='hidden', name='_csrf', value=_csrf)
-    .form-group
-      label.col-sm-3.control-label(for='name') Name
-      .col-sm-7
+    .col-sm-8.col-sm-offset-2
+      .form-group
+        label.control-label(for='name') Name
         input.form-control(type='text', name='name', id='name', placeholder='Name', required="", autofocus)
-    
-    .form-group  
-      label.col-sm-3.control-label(for='cell') Cell Number
-      .col-sm-7
+      
+      .form-group  
+        label.control-label(for='cell') Cell Number
         input.form-control(type='text', name='cell', id='cell', placeholder='Cell Number', required="")
-    
-    .form-group 
-      label.col-sm-3.control-label(for='complex') Where do you stay?
-      .col-sm-7
+      
+      .form-group 
+        label.control-label(for='complex') Where do you stay?
         select.form-control(name='complex', id='complex', required="")
           option Select
-          
+            
           for complex in complexs
             option(value='#{complex.id}') #{complex.name}    
-    
-    .form-group
-      label.col-sm-3.control-label(for='password') Password
-      .col-sm-7
+      
+      .form-group
+        label.control-label(for='password') Password
         input.form-control(type='password', name='password', id='password', required="", placeholder='Password')
-    
-    .form-group
-      label.col-sm-3.control-label(for='confirmPassword') Confirm Password
-      .col-sm-7
+      
+      .form-group
+        label.control-label(for='confirmPassword') Confirm Password
         input.form-control(type='password', name='confirmPassword', id='confirmPassword', required="", placeholder='Confirm Password')
-    .form-group
-      .col-sm-offset-3.col-sm-7
+
+      .form-group
         button.btn.btn-success(type='submit')
           span.ion-person-add
           | Register

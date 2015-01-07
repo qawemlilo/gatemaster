@@ -10,6 +10,10 @@ var complexSchema = new mongoose.Schema({
     type: String
   },
   
+  suburb: {
+    type: String
+  },
+
   slug: {
     type: String
   },
@@ -25,7 +29,7 @@ complexSchema.pre('save', function(next) {
 
   if (!complex.isModified('name')) return next();
 
-  complex.slug = slugify(complex.name);
+  complex.slug = slugify(complex.name).toLowerCase();
   next();
 });
 
