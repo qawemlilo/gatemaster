@@ -2,7 +2,7 @@ extends ../layout
 
 block content
   .page-header
-    h3 Sign up
+    h3 Register
   form.form-horizontal(id='signup-form', action="/signup" method='POST')
     input(type='hidden', name='_csrf', value=_csrf)
     .form-group
@@ -37,4 +37,4 @@ block content
       .col-sm-offset-3.col-sm-7
         button.btn.btn-success(type='submit')
           span.ion-person-add
-          | Signup
+          | Register

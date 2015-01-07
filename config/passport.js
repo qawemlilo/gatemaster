@@ -17,13 +17,13 @@ passport.deserializeUser(function(id, done) {
 
 // Sign in using Email and Password.
 passport.use(new LocalStrategy({ usernameField: 'cell' }, function(cell, password, done) {
-  User.findOne({cell: cell}, function(err, user) {
+  User.findOne({cell: cell.trim().replace(/ /g, '')}, function(err, user) {
     if (!user) return done(null, false, { message: 'Cell number ' + cell + ' not found'});
     user.comparePassword(password, function(err, isMatch) {
       if (isMatch) {
         return done(null, user);
       } else {
-        return done(null, false, { message: 'Invalid cell or password.' });
+        return done(null, false, { message: 'Invalid Cell number or password.' });
       }
     });
   });

@@ -31,7 +31,7 @@ var complexController = require('./controllers/complex');
 
 /**
  * API keys and Passport configuration.
- */
+**/
 
 var secrets = require('./config/secrets');
 var passportConf = require('./config/passport');
@@ -39,13 +39,11 @@ var passportConf = require('./config/passport');
 /**
  * Create Express server.
  */
-
 var app = express();
 
 /**
  * Connect to MongoDB.
- */
-
+**/
 mongoose.connect(secrets.db);
 mongoose.connection.on('error', function() {
   console.error('MongoDB Connection Error. Please make sure that MongoDB is running.');
@@ -54,9 +52,7 @@ mongoose.connection.on('error', function() {
 
 /**
  * Express configuration.
- */
-
-
+**/
 var csrfExclude = ['/complexs'];
 
 app.set('port', process.env.PORT || 3000);
@@ -111,6 +107,7 @@ app.get('/signup', userController.getSignup);
 app.post('/signup', userController.postSignup);
 app.post('/login', userController.postLogin);
 app.get('/logout', userController.logout);
+app.get('/forgot', userController.getForgot);
 
 app.get('/complexs', complexController.fetch);
 app.post('/complexs', complexController.save);

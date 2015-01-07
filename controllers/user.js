@@ -1,12 +1,11 @@
 var _ = require('lodash');
 var async = require('async');
 var crypto = require('crypto');
-var nodemailer = require('nodemailer');
 var passport = require('passport');
 var User = require('../models/user');
 var Complex = require('../models/complex');
 var secrets = require('../config/secrets');
-
+var twilio = require('./twilio');
 
 
 
@@ -26,8 +25,7 @@ exports.getSignup = function(req, res) {
  * Sign in using email and password.
  * @param email
  * @param password
- */
-
+**/
 exports.postLogin = function(req, res, next) {
   req.assert('cell', 'Cell number should be 10 digits long').len(10);
   req.assert('password', 'Password cannot be blank').notEmpty();
@@ -47,17 +45,17 @@ exports.postLogin = function(req, res, next) {
     }
     req.logIn(user, function(err) {
       if (err) return next(err);
-      req.flash('success', { msg: 'Success! You are logged in.' });
+      //req.flash('success', { msg: 'Success! You are logged in.' });
       res.redirect(req.session.returnTo || '/');
     });
   })(req, res, next);
 };
 
+
 /**
  * GET /logout
  * Log out.
- */
-
+**/
 exports.logout = function(req, res) {
   req.logout();
   res.redirect('/');
@@ -69,8 +67,7 @@ exports.logout = function(req, res) {
  * Create a new local account.
  * @param email
  * @param password
- */
-
+**/
 exports.postSignup = function(req, res, next) {
   req.assert('name', 'Name must be at least 2 characters long').len(2);
   req.assert('cell', 'Cell is not valid').len(10);
@@ -99,6 +96,13 @@ exports.postSignup = function(req, res, next) {
     }
     user.save(function(err) {
       if (err) return next(err);
+
+      var text = 'Please make a payment of R100 for a 1 year contract to continue using the GateMaster App. Call 063 222 0269.'
+
+      twilio.sendSMS(user.number, text, function(err, responseData) {
+        if (err) console.log(err.message);
+      });
+
       req.logIn(user, function(err) {
         if (err) return next(err);
         res.redirect('/');
@@ -107,11 +111,11 @@ exports.postSignup = function(req, res, next) {
   });
 };
 
+
 /**
  * GET /account
  * Profile page.
- */
-
+**/
 exports.getUsers = function(req, res) {
   User.find(function (error, users) {
     if (error) {
@@ -122,22 +126,22 @@ exports.getUsers = function(req, res) {
   })
 };
 
+
 /**
  * GET /account
  * Profile page.
- */
-
+**/
 exports.getAccount = function(req, res) {
   res.render('account/profile', {
     title: 'Account Management'
   });
 };
 
+
 /**
  * POST /account/profile
  * Update profile information.
- */
-
+**/
 exports.postUpdateProfile = function(req, res, next) {
   User.findById(req.user.id, function(err, user) {
     if (err) return next(err);
@@ -152,12 +156,12 @@ exports.postUpdateProfile = function(req, res, next) {
   });
 };
 
+
 /**
  * POST /account/password
  * Update current password.
  * @param password
- */
-
+**/
 exports.postUpdatePassword = function(req, res, next) {
   req.assert('password', 'Password must be at least 4 characters long').len(4);
   req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);
@@ -182,11 +186,11 @@ exports.postUpdatePassword = function(req, res, next) {
   });
 };
 
+
 /**
  * POST /account/delete
  * Delete user account.
- */
-
+**/
 exports.postDeleteAccount = function(req, res, next) {
   User.remove({ _id: req.user.id }, function(err) {
     if (err) return next(err);
@@ -200,14 +204,13 @@ exports.postDeleteAccount = function(req, res, next) {
 /**
  * GET /reset/:token
  * Reset Password page.
- */
-
+**/
 exports.getReset = function(req, res) {
   if (req.isAuthenticated()) {
     return res.redirect('/');
   }
   User
-    .findOne({ resetPasswordToken: req.params.token })
+    .findOne({resetPasswordToken: req.params.token})
     .where('resetPasswordExpires').gt(Date.now())
     .exec(function(err, user) {
       if (!user) {
@@ -220,12 +223,12 @@ exports.getReset = function(req, res) {
     });
 };
 
+
 /**
  * POST /reset/:token
  * Process the reset password request.
  * @param token
- */
-
+**/
 exports.postReset = function(req, res, next) {
   req.assert('password', 'Password must be at least 4 characters long.').len(4);
   req.assert('confirm', 'Passwords must match.').equals(req.body.password);
@@ -240,7 +243,7 @@ exports.postReset = function(req, res, next) {
   async.waterfall([
     function(done) {
       User
-        .findOne({ resetPasswordToken: req.params.token })
+        .findOne({resetPasswordToken: req.params.token})
         .where('resetPasswordExpires').gt(Date.now())
         .exec(function(err, user) {
           if (!user) {
@@ -261,23 +264,8 @@ exports.postReset = function(req, res, next) {
         });
     },
     function(user, done) {
-      var smtpTransport = nodemailer.createTransport('SMTP', {
-        service: 'SendGrid',
-        auth: {
-          user: secrets.sendgrid.user,
-          pass: secrets.sendgrid.password
-        }
-      });
-      var mailOptions = {
-        to: user.email,
-        from: 'hackathon@starter.com',
-        subject: 'Your Hackathon Starter password has been changed',
-        text: 'This is a confirmation that the password for your account has just been changed'
-      };
-      smtpTransport.sendMail(mailOptions, function(err) {
-        req.flash('success', { msg: 'Success! Your password has been changed.' });
-        done(err);
-      });
+      req.flash('success', { msg: 'Success! Your password has been changed.' });
+      done();
     }
   ], function(err) {
     if (err) return next(err);
@@ -285,11 +273,11 @@ exports.postReset = function(req, res, next) {
   });
 };
 
+
 /**
  * GET /forgot
  * Forgot Password page.
- */
-
+**/
 exports.getForgot = function(req, res) {
   if (req.isAuthenticated()) {
     return res.redirect('/');
@@ -299,14 +287,14 @@ exports.getForgot = function(req, res) {
   });
 };
 
+
 /**
  * POST /forgot
  * Create a random token, then the send user an email with a reset link.
  * @param email
- */
-
+**/
 exports.postForgot = function(req, res, next) {
-  req.assert('email', 'Please enter a valid email address.').isEmail();
+  req.assert('cell', 'Please enter a valid cell number.').len(10);
 
   var errors = req.validationErrors();
 
@@ -338,24 +326,10 @@ exports.postForgot = function(req, res, next) {
       });
     },
     function(token, user, done) {
-      var smtpTransport = nodemailer.createTransport('SMTP', {
-        service: 'SendGrid',
-        auth: {
-          user: secrets.sendgrid.user,
-          pass: secrets.sendgrid.password
-        }
-      });
-      var mailOptions = {
-        to: user.email,
-        from: 'hackathon@starter.com',
-        subject: 'Reset your password on Hackathon Starter',
-        text: 'You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n' +
-          'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-          'http://' + req.headers.host + '/reset/' + token + '\n\n' +
-          'If you did not request this, please ignore this email and your password will remain unchanged.\n'
-      };
-      smtpTransport.sendMail(mailOptions, function(err) {
-        req.flash('info', { msg: 'An e-mail has been sent to ' + user.email + ' with further instructions.' });
+      var text = 'Reset url: ' + 'http://' + req.headers.host + '/reset/' + token;
+
+      twilio.sendSMS(user.number, text, function(err, responseData) {
+        req.flash('info', { msg: 'An sms has been sent to ' + user.number + ' with further instructions.' });
         done(err, 'done');
       });
     }
