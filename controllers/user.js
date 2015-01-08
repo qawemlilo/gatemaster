@@ -6,6 +6,7 @@ var User = require('../models/user');
 var Complex = require('../models/complex');
 var secrets = require('../config/secrets');
 var twilio = require('./twilio');
+var agenda = require('../lib/agenda')();
 
 
 
@@ -97,11 +98,9 @@ exports.postSignup = function(req, res, next) {
     user.save(function(err) {
       if (err) return next(err);
 
-      var text = 'Please make a payment of R100 for a 1 year contract to continue using the GateMaster App. Call 063 222 0269.'
-
-      twilio.sendSMS(user.cell, text, function(err, responseData) {
-        if (err) console.log(err.message);
-      });
+      agenda.now('welcome sms', {cellNumber: req.body.cell});
+      agenda.schedule('in 5 minutes', 'payment check', {cellNumber: req.body.cell});
+      agenda.schedule('in 1 minutes', 'registration sms', {cellNumber: req.body.cell});
 
       req.logIn(user, function(err) {
         if (err) return next(err);
@@ -123,7 +122,7 @@ exports.getUsers = function(req, res) {
     }
 
     res.json(users);
-  })
+  });
 };
 
 

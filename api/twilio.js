@@ -15,9 +15,6 @@ exports.sendSMS = function (numberTo, message, fn) {
     numberTo = '+27' + numberTo.substring(1);
   }
 
-  console.log('smsTo: %s', numberTo);
-  console.log('msg: %s', message);
-
   twilio.sendMessage({
     to: numberTo,
     from: '+27875503593',

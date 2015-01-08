@@ -46,7 +46,7 @@ exports.add = function(req, res, next) {
 
 
 exports.get = function(req, res) {
-  Complex.find({id: req.params.id}, function (error, complex) {
+  Complex.find({_id: req.params.id}, function (error, complex) {
 
     if (error) {
       return res.status(500).json({error: true, message: error.message});
@@ -58,7 +58,9 @@ exports.get = function(req, res) {
 
 
 exports.update = function(req, res, next) {
-  Complex.findOne({id: req.params.id}, function(err, complex) {
+  console.log(req.params.id);
+
+  Complex.findOne({_id: req.params.id}, function(err, complex) {
     if (!complex) {
       return res.status(500).json({error: false, message: 'Complex does not exists.'});
     }
@@ -78,7 +80,7 @@ exports.update = function(req, res, next) {
 
 
 exports.del = function(req, res, next) {
-  Complex.remove({id: req.params.id}, function(err) {
+  Complex.remove({_id: req.params.id}, function(err) {
     if (err) {
       return res.status(500).json({error: true, message: err.message});
     }

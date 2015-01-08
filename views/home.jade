@@ -1,6 +1,15 @@
 extends layout
 
 block content
-  h1
-    button.btn.btn-danger.btn-large.btn-block
-      h1 Open Gate »
+
+  button.btn.btn-danger.btn-large.btn-block
+    h1
+      span.ion-radio-waves
+      | Open Gate
+
+  p(style='text-align:center; margin-top: 5px;') - OR - 
+
+  a.btn.btn-success.btn-large.btn-block(href='tel:+27632220269')
+    h1
+      span.ion-android-call
+      | Buzz Me

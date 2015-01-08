@@ -54,7 +54,7 @@ exports.add = function(req, res) {
 
 
 exports.get = function(req, res) {
-  Payment.find({id: req.params.id}, function (error, payment) {
+  Payment.find({_id: req.params.id}, function (error, payment) {
 
     if (error) {
       return res.status(500).json({error: true, message: error.message});
@@ -67,7 +67,7 @@ exports.get = function(req, res) {
 
 
 exports.update = function(req, res, next) {
-  Payment.findOne({id: req.params.id}, function(err, payment) {
+  Payment.findOne({_id: req.params.id}, function(err, payment) {
     if (!payment) {
       return res.status(500).json({error: false, message: 'Payment does not exists.'});
     }
@@ -89,7 +89,7 @@ exports.update = function(req, res, next) {
 
 
 exports.del = function(req, res, next) {
-  Payment.remove({id: req.params.id}, function(err) {
+  Payment.remove({_id: req.params.id}, function(err) {
     if (err) {
       return res.status(500).json({error: true, message: err.message});
     }

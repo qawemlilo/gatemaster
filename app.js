@@ -1,8 +1,12 @@
+
+
 /**
  * Module dependencies.
- */
-
+**/
 var express = require('express');
+var mongoose = require('mongoose');
+var passport = require('passport');
+var _ = require('lodash');
 var cookieParser = require('cookie-parser');
 var compress = require('compression');
 var session = require('express-session');
@@ -13,32 +17,13 @@ var csrf = require('lusca').csrf();
 var MongoStore = require('connect-mongo')(session);
 var flash = require('express-flash');
 var path = require('path');
-var mongoose = require('mongoose');
-var passport = require('passport');
 var expressValidator = require('express-validator');
 var connectAssets = require('connect-assets');
-var _ = require('lodash');
-var twilio = require('./controllers/twilio');
+var routes = require('./routes');
 var API = require('./api');
-var BasicStrategy = require('passport-http').BasicStrategy;
-var User = require('./models/user');
-
-
-/**
- * Controllers (route handlers).
- */
-var homeController = require('./controllers/home');
-var userController = require('./controllers/user');
-var complexController = require('./controllers/complex');
-//var apiController = require('./controllers/api');
-//var contactController = require('./controllers/contact');
-
-/**
- * API keys and Passport configuration.
-**/
-
 var secrets = require('./config/secrets');
-var passportConf = require('./config/passport');
+var passportConf = require('./lib/passport');
+var cronjobs = require('./jobs');
 
 /**
  * Create Express server.
@@ -54,34 +39,10 @@ mongoose.connection.on('error', function() {
 });
 
 
-passport.use(new BasicStrategy(
-  function (cell, secret, done) {
-    // connect to database and query against id / secret
-    User.find({
-      cell: cell.trim().replace(/ /g, ''), 
-      secret: secret 
-    }, function(err, user) {
-      if (err) {
-        return done(err);
-      } else if (!user) {
-        return done(null, false);
-      }
-      return done(null, user);
-    })
-  }
-));
-
 /**
  * Express configuration.
 **/
-var csrfExclude = [
-  '/complexs', 
-  '/sms', 
-  '/call', 
-  '/inbound', 
-  '/api/users', 
-  '/api/users/:id'
-];
+var csrfExclude = ['/complexs', '/sms', '/call', '/inbound'];
 
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
@@ -90,18 +51,11 @@ app.use(compress());
 app.use(connectAssets({
   paths: [path.join(__dirname, 'public/css'), path.join(__dirname, 'public/js')]
 }));
-
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressValidator());
 app.use(cookieParser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
-app.use(cookieParser());
-
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -109,23 +63,25 @@ app.use(function(req, res, next) {
 
   next();
 });
-
 app.use(session({
   resave: true,
   saveUninitialized: true,
   secret: secrets.sessionSecret,
-  store: new MongoStore({ url: secrets.db, autoReconnect: true })
+  store: new MongoStore({ url: secrets.db, autoReconnect: true }),
+  maxAge: null,
+  httpOnly: true
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
+app.use('/api', passportConf.canAccessApi, API);
+
 app.use(function(req, res, next) {
-  // CSRF protection.
+  // CSRF protectionapp.use('/api', passportConf.canAccessApi, API);.
   if (_.contains(csrfExclude, req.path)) return next();
   csrf(req, res, next);
 });
 app.use(function(req, res, next) {
-  // Make user object available in templates.
   res.locals.user = req.user;
   next();
 });
@@ -140,66 +96,12 @@ app.use(function(req, res, next) {
 });
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 
-/**
- * Main routes.
-**/
-app.get('/', homeController.index);
-app.get('/users', userController.getUsers);
-app.get('/signup', userController.getSignup);
-app.post('/signup', userController.postSignup);
-app.post('/login', userController.postLogin);
-app.get('/logout', userController.logout);
-app.get('/forgot', userController.getForgot);
-
-
-app.post('/sms', function (req, res, next) {
-  var cell = req.body.cell;
-  var message = req.body.message;
-
-  twilio.sendSMS(cell, message, function (err, response) {
-    if (err) {
-      return res.status(500).json({error: true, message: err.message});
-    }
-
-    res.json({error: false, message: 'Message sent!'});
-  });
-});
-
-app.post('/call', function(req, res) {
-  var number = req.body.number;
-
-  twilio.makeCall(number, function (error) {
-    if (error) {
-      res.status(500).json({error: true, message: error.message});
-    }
-    res.json({error: false, message: 'Call made'});
-  });
-});
-
-app.post('/inbound', function(req, res) {
-  var twilio = require('twilio');
-  var twiml = new twilio.TwimlResponse();
-
-  var options = {
-    voice: 'woman',
-    language: 'en-gb'
-  };
-
-  twiml.say('Hello Cathrine! You have won one million dollars for being awesome. lol, Zim dollars. Do not be mad at me, I was sent by Q, your friend', options);
-
-
-  res.writeHead(200, {
-    'Content-Type': 'text/xml'
-  });
-  res.end(twiml.toString());
-});
-
-
 
 /**
- *  Application API
+ * Routes setup  
 **/
-//app.use('/api', passport.authenticate('basic', { session: false }), API);
+routes.setup(app);
+
 
 /**
  * 500 Error Handler.
@@ -207,8 +109,15 @@ app.post('/inbound', function(req, res) {
 app.use(errorHandler());
 
 
+/**
+ * Start cronjobs
+**/
+cronjobs.start();
+
+
 app.listen(app.get('port'), function() {
   console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
 });
+
 
 module.exports = app;

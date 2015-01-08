@@ -60,7 +60,7 @@ exports.add = function(req, res) {
 
 
 exports.get = function(req, res) {
-  User.find({id: req.params.id}, function (error, user) {
+  User.find({_id: req.params.id}, function (error, user) {
 
     if (error) {
       return res.status(500).json({error: true, message: error.message});
@@ -73,13 +73,7 @@ exports.get = function(req, res) {
 
 
 exports.update = function(req, res, next) {
-  req.assert('id', 'User id must not be empty').notEmpty();
-
-  if (req.validationErrors()) {
-    return res.status(500).json({error: true, message: 'User Id is required'});
-  }
-
-  User.findOne({id: req.body.id}, function(err, user) {
+  User.findOne({_id: req.params.id}, function(err, user) {
     if (!user) {
       return res.status(500).json({error: false, message: 'User does not exists.'});
     }
@@ -105,13 +99,8 @@ exports.update = function(req, res, next) {
 
 
 exports.del = function(req, res, next) {
-  req.assert('id', 'Usuer id must not be empty').notEmpty();
 
-  if (req.validationErrors()) {
-    return res.status(500).json({error: true, message: 'User Id is required'});
-  }
-
-  User.remove({id: req.body.id}, function(err) {
+  User.remove({_id: req.params.id}, function(err) {
     if (err) {
       return res.status(500).json({error: true, message: err.message});
     }

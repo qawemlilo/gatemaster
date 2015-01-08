@@ -60,6 +60,10 @@ var userSchema = new mongoose.Schema({
   modifiedAt: {
     type: Date,
     default: Date.now
+  },
+
+  expireyDate: {
+    type: Date
   }
 });
 

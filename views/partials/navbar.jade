@@ -2,5 +2,9 @@
   .container
     .navbar-header
       a.navbar-brand(href='/')
-        span.ion-key
+        span.ion-radio-waves
         | GateMaster
+
+    if (user)
+      ul.list-inline.list-unstyled.pull-right(style='margin-top:15px')
+        li Hello #{user.name}

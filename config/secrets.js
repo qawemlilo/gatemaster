@@ -20,6 +20,8 @@ module.exports = {
 
   db: process.env.MONGOHQ || 'mongodb://localhost:27017/gatemaster',
 
+  agendCollection: process.env.AGENDA || 'cronjobs',
+
   sessionSecret: process.env.SESSION_SECRET || 'I am a wizard',
 
   gmail: {

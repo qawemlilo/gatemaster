@@ -42,7 +42,7 @@ router.route('/complexes')
   .post(Complex.add);
 
 router.route('/complexes/:id')
-  .put(Complex.get)
+  .get(Complex.get)
   .put(Complex.update)
   .delete(Complex.del);
 
