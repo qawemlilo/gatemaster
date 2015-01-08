@@ -4,7 +4,10 @@
       a.navbar-brand(href='/')
         span.ion-radio-waves
         | GateMaster
+      if (user)
+        ul.list-inline.list-unstyled.pull-right.visible-xs-inline(style='margin-top:15px')
+          li Hello #{user.name}
 
     if (user)
-      ul.list-inline.list-unstyled.pull-right(style='margin-top:15px')
+      ul.list-inline.list-unstyled.pull-right.hidden-xs(style='margin-top:15px')
         li Hello #{user.name}
