@@ -1,9 +1,9 @@
 
 
-var secrets = require('../config/secrets');
+var config = require('../config');
 var twilioModule = require('twilio');
-var twilio = twilioModule(secrets.twilio.sid, secrets.twilio.token);
-var client = new twilioModule.RestClient(secrets.twilio.sid, secrets.twilio.token);
+var twilio = twilioModule(config.twilio.sid, config.twilio.token);
+var client = new twilioModule.RestClient(config.twilio.sid, config.twilio.token);
 
 
 
@@ -50,14 +50,60 @@ exports.makeCall = function (req, res) {
 };
 
 
+exports.openGate = function (req, res) {
+  var number = req.user.cell || 'nonumber';
+
+  client.makeCall({
+    to: '+27632220269', // a number to call
+    from:'+27730231041', // a Twilio number you own
+    url: 'http://12045876.ngrok.com/inbound?number=' + number // A URL containing TwiML instructions for the call
+  })
+  .then(function(call) {
+    console.log('Call success! Call SID: ' + call.sid);
+    res.json({error: false, message: 'Call made'});
+  }, 
+  function(error) {
+    console.error('Call failed!  Reason: ' + error.message);
+    res.json({error: true, message: error.message});
+  });
+};
+
+
 exports.inbound = function (req, res, next) {
+  var twilio = require('twilio');
   var twiml = new twilio.TwimlResponse();
+
+  var number = req.query.number;
+  var msgOne = 'Welcome to the future. I have been sent by mr awesome, also known as, the awesome Q, to come and open your gates.';
+  var msgTwo = '';
+  var msgThree = 'We are launching this application in 2 weeks. Make sure you buy Q a beer, this dude is AWESOME!';
+
+  if (number === 'nonumber') {
+    msgTwo = 'You cell number was not found';
+  }
+  else {
+    msgTwo = 'You cell number is ' + number;
+  }
+  
   var options = {
     voice: 'woman',
     language: 'en-gb'
   };
 
-  twiml.say('Hello Cathrine! You have won one million dollars for being awesome. lol, Zim dollars. Do not be mad at me, I was sent by Q, your friend', options);
+  twiml.say(msgOne)
+  .pause({
+    length: 1
+  })
+  .say(msgTwo)
+  .pause({
+    length: 1
+  })
+  .say(msgThree, options)
+  .pause({
+    length: 1
+  })
+  .say('Good bye')
+  .say('Good bye', options);
 
   res.set('Content-Type', 'text/xml');
   res.end(twiml.toString());

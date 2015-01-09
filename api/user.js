@@ -60,7 +60,7 @@ exports.add = function(req, res) {
 
 
 exports.get = function(req, res) {
-  User.find({_id: req.params.id}, function (error, user) {
+  User.findOne({_id: req.params.id}, function (error, user) {
 
     if (error) {
       return res.status(500).json({error: true, message: error.message});
@@ -99,7 +99,6 @@ exports.update = function(req, res, next) {
 
 
 exports.del = function(req, res, next) {
-
   User.remove({_id: req.params.id}, function(err) {
     if (err) {
       return res.status(500).json({error: true, message: err.message});

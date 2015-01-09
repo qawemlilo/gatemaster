@@ -1,9 +1,9 @@
 
 
-var secrets = require('../config/secrets');
+var config = require('../config');
 var twilioModule = require('twilio');
-var twilio = twilioModule(secrets.twilio.sid, secrets.twilio.token);
-var client = new twilioModule.RestClient(secrets.twilio.sid, secrets.twilio.token);
+var twilio = twilioModule(secrets.twilio.sid, config.twilio.token);
+var client = new twilioModule.RestClient(config.twilio.sid, config.twilio.token);
 
 
 

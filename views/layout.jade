@@ -7,6 +7,9 @@ html
     meta(name='csrf-token', content=_csrf)
     title #{title} - GateMaster
     != css('styles')
+
+    script(type='text/javascript').
+      var _csrf = "#{_csrf}";
   body
     include partials/navbar
 
@@ -15,3 +18,6 @@ html
       block content
 
     include partials/footer
+    
+
+    != js('application')

@@ -1,7 +1,7 @@
 
 
 /**
- * Controllers (route handlers).
+ * Maps routes to controllers
 **/
 
 var homeController = require('./controllers/home');
@@ -21,5 +21,6 @@ module.exports.setup = function (app) {
   app.get('/forgot', userController.getForgot);
   app.post('/call', twilioController.makeCall);
   app.post('/inbound', twilioController.inbound);
+  app.get('/opengate', twilioController.openGate);
 
 };

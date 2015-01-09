@@ -1,8 +1,15 @@
 
+
+/**
+ *  Appliction smses 
+**/
+
+
 var agenda = require('../lib/agenda')();
 var twilio = require('../controllers/twilio');
 var User = require('../models/user');
 var contactCell = '063 222 0269';
+var oneYear = 365 * 24 * 60 * 60 * 1000;
 
 
 module.exports = function() {
@@ -46,6 +53,57 @@ module.exports = function() {
 
 
   /*
+   *  Runs soon after payment - SMS receipt
+  **/
+  agenda.define('payment receipt', function(job, done) {
+    var text = 'Your payment has been confirmation. For any queries contact ' + contactCell;
+    var cell = job.attrs.data.cellNumber;
+    var paymentId = job.attrs.data.paymentId;
+    
+    // fetch user
+    process.nextTick(function () {
+      User.findOne({cell: cell}, function (error, user) {
+        if (error) {
+          return agenda.now('error report', {
+            cellNumber: cell,
+            paymentId: paymentId,
+            errorMsg: error.message,
+            jobName: 'payment receipt'
+          });
+        }
+
+        // extend account expirey date
+        user.expireyDate = user.paid ? user.expireyDate + oneYear : Date.now() + oneYear;
+        user.paid = true;
+        
+        // if the user has not paid
+        user.save(function (error) {
+          if (error) {
+            return agenda.now('error report', {
+              cellNumber: cell,
+              paymentId: paymentId,
+              errorMsg: error.message,
+              jobName: 'payment receipt'
+            });
+          }
+
+          twilio.sendSMS(cell, text, function(err, res) {
+            if (err) {
+              agenda.now('error report', {
+                cellNumber: cell,
+                paymentId: paymentId,
+                errorMsg: err.message,
+                jobName: 'payment receipt'
+              });
+            }
+          });
+        });
+      });
+    });
+  });
+
+
+  /*
    *  Runs 24 hours after registration - Check if user has paid
   **/
   agenda.define('payment check', function(job, done) {
@@ -59,7 +117,7 @@ module.exports = function() {
           return agenda.now('error report', {
             cellNumber: cell,
             errorMsg: error.message,
-            jobName: 'registration sms'
+            jobName: 'payment check'
           });
         }
         

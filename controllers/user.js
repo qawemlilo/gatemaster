@@ -1,10 +1,11 @@
+
+
 var _ = require('lodash');
 var async = require('async');
 var crypto = require('crypto');
 var passport = require('passport');
 var User = require('../models/user');
 var Complex = require('../models/complex');
-var secrets = require('../config/secrets');
 var twilio = require('./twilio');
 var agenda = require('../lib/agenda')();
 

@@ -1,5 +1,9 @@
 
 
+/**
+ *  Cronjobs
+**/
+
 var agenda = require('../lib/agenda')();
 var emailJobs = require('./email');
 var smsJobs = require('./sms');
@@ -7,7 +11,13 @@ var smsJobs = require('./sms');
 
 
 module.exports.start = function () {
-  
+
+  function graceful() {
+    agenda.stop(function() {
+      process.exit(0);
+    });
+  }
+
   emailJobs();
   smsJobs();
 
@@ -20,4 +30,9 @@ module.exports.start = function () {
   agenda.on('complete', function(job) {
     console.log("Job %s finished", job.attrs.name);
   });
+
+  process.on('SIGTERM', graceful);
+  process.on('SIGINT' , graceful);
+
+  return agenda;
 };

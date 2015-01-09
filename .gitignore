@@ -13,6 +13,7 @@ secrets.json
 *.gitignore~
 *.secret
 node_modules/
+bower_components/
 build/
 temp/
 
