@@ -1,0 +1,39 @@
+extends layout
+
+block content
+
+  .modal.fade.bs-example-modal-sm(tabindex='-1', role='dialog', aria-labelledby='mySmallModalLabel', aria-hidden='true')
+    .modal-dialog.modal-sm
+      .modal-content
+        form(method='POST', name="login" action="/addtenant")
+          input(type='hidden', name='_csrf', value=_csrf)
+          .col-sm-8.col-sm-offset-2
+            .form-group
+              label.control-label(for='cell') &nbsp;
+              input.form-control(type='cell', name='cell', id='cell', placeholder='Tenant Cell Number', autofocus=true)
+            .form-group
+              button.btn.btn-primary(type='submit') Add Tenant      
+
+  p This page allows you to remove old tenants from the system and add new ones
+   
+  table.table.table-striped
+    thead
+      tr
+        th 
+          h4 Tenants
+        th(style='text-align: right') 
+          a.text-success(href='#/newtenant', id='addnewtenant', data-target='.bs-example-modal-sm', data-toggle='modal') 
+            span.ion-plus &nbsp;New
+
+    tbody
+      for tenant in tenants
+        tr
+          td
+            strong #{tenant.name}
+            br
+            #{tenant.cell}
+          td(style='text-align: right')
+            br
+            a.text-danger(href='#/removetenant', class='removetenant', data-cell='#{tenant.cell}') delete
+  
+  != js('landlord')

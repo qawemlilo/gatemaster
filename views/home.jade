@@ -1,6 +1,7 @@
 extends layout
 
 block content
+  p Use the red button to open the gate remotely and the other one to open by buzzing our number.
 
   button.btn.btn-danger.btn-large.btn-block(id='openGate')
     h1
@@ -12,4 +13,6 @@ block content
   a.btn.btn-success.btn-large.btn-block(href='tel:+27632220269')
     h1
       span.ion-android-call
-      | Buzz Me
+      | Buzz Gate
+
+  != js('home')

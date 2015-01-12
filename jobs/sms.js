@@ -120,6 +120,15 @@ module.exports = function() {
             jobName: 'payment check'
           });
         }
+
+        if (!user) {
+          return agenda.now('error report', {
+            cellNumber: cell,
+            errorMsg: 'User not found',
+            jobName: 'payment check'
+          });
+        }
+
         
         // if the user has not paid
         if (!user.paid) {

@@ -19,6 +19,19 @@ var complexSchema = new mongoose.Schema({
   },
 
   createdAt: {
+    type: Date
+  },
+
+
+  sendTo: {
+    type: String
+  },
+
+  numbers: {
+    type: Array
+  },
+
+  modifiedAt: {
     type: Date,
     default: Date.now
   }

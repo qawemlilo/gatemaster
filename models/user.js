@@ -29,6 +29,15 @@ var userSchema = new mongoose.Schema({
     lowercase: true
   },
 
+  landlord: {
+    type: mongoose.Schema.Types.ObjectId
+  },
+
+  isLandlord: {
+    type: Boolean, 
+    default: false
+  },
+
   paid: {
     type: Boolean, 
     default: false
@@ -53,13 +62,16 @@ var userSchema = new mongoose.Schema({
   },
 
   createdAt: {
-    type: Date,
-    default: Date.now
+    type: Date
   },
 
   modifiedAt: {
     type: Date,
     default: Date.now
+  },
+
+  deletedAt: {
+    type: Date
   },
 
   expireyDate: {
@@ -74,6 +86,10 @@ var userSchema = new mongoose.Schema({
 
 userSchema.pre('save', function(next) {
   var user = this;
+
+  if (user.isModified('cell')) {
+    user.cell = user.cell.trim().replace(/ /g, '');
+  }
 
   if (!user.isModified('password')) return next();
 

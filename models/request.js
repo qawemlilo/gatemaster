@@ -13,12 +13,11 @@ var requestSchema = new mongoose.Schema({
   },
 
   data: {
-    type: Object
+    type: Mixed
   },
 
   createdAt: {
-    type: Date,
-    default: Date.now
+    type: Date
   }
 });
 

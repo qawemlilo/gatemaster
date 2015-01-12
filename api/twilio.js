@@ -2,7 +2,7 @@
 
 var config = require('../config');
 var twilioModule = require('twilio');
-var twilio = twilioModule(secrets.twilio.sid, config.twilio.token);
+var twilio = twilioModule(config.twilio.sid, config.twilio.token);
 var client = new twilioModule.RestClient(config.twilio.sid, config.twilio.token);
 
 
@@ -24,16 +24,19 @@ exports.sendSMS = function (numberTo, message, fn) {
 
 
 exports.makeCall = function (req, res) {
-  var number = req.body.number;
-  var numberTo = number.trim().replace(/ /g, '');
+  var cell = req.body.cell;
+  var numberTo = cell.trim().replace(/ /g, '');
 
-  if (numberTo.indexOf(0) === '0') {
+  if (numberTo.indexOf(0) === 0) {
     numberTo = '+27' + numberTo.substring(1);
+  }
+  else {
+    console.log(numberTo);
   }
 
   client.makeCall({
     to: numberTo, // a number to call
-    from:'+27632220269', // a Twilio number you own
+    from:'+27730231041', // a Twilio number you own
     url: 'http://12045876.ngrok.com/inbound' // A URL containing TwiML instructions for the call
   })
   .then(function(call) {
@@ -54,7 +57,7 @@ exports.inbound = function (req, res, next) {
     language: 'en-gb'
   };
 
-  twiml.say('Hello Cathrine! You have won one million dollars for being awesome. lol, Zim dollars. Do not be mad at me, I was sent by Q, your friend', options);
+  twiml.say('Good day, have a lovely one', options);
 
   res.set('Content-Type', 'text/xml');
   res.end(twiml.toString());

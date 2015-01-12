@@ -30,14 +30,14 @@ exports.makeCall = function (req, res) {
   var number = req.body.number;
   var numberTo = number.trim().replace(/ /g, '');
 
-  if (numberTo.indexOf(0) === '0') {
+  if (numberTo.indexOf(0) === 0) {
     numberTo = '+27' + numberTo.substring(1);
   }
 
   client.makeCall({
     to: numberTo, // a number to call
-    from:'+27632220269', // a Twilio number you own
-    url: 'http://12045876.ngrok.com/inbound' // A URL containing TwiML instructions for the call
+    from:'+27730231041', // a Twilio number you own
+    url: 'http://twimlets.com/echo?Twiml=%3CResponse%3E%3CSay%3EHello%3C%2FSay%3E%3C%2FResponse%3E' // A URL containing TwiML instructions for the call
   })
   .then(function(call) {
     console.log('Call success! Call SID: '+ call.sid);
@@ -56,7 +56,7 @@ exports.openGate = function (req, res) {
   client.makeCall({
     to: '+27632220269', // a number to call
     from:'+27730231041', // a Twilio number you own
-    url: 'http://12045876.ngrok.com/inbound?number=' + number // A URL containing TwiML instructions for the call
+    url: 'http://twimlets.com/echo?Twiml=%3CResponse%3E%3CSay%3EHello%3C%2FSay%3E%3C%2FResponse%3E'
   })
   .then(function(call) {
     console.log('Call success! Call SID: ' + call.sid);
@@ -64,7 +64,7 @@ exports.openGate = function (req, res) {
   }, 
   function(error) {
     console.error('Call failed!  Reason: ' + error.message);
-    res.json({error: true, message: error.message});
+    res.status(500).json({error: true, message: error.message});
   });
 };
 

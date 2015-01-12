@@ -32,6 +32,14 @@ block content
         input.form-control(type='password', name='confirmPassword', id='confirmPassword', required="", placeholder='Confirm Password')
 
       .form-group
+        label.radio-inline
+          input(type='radio', name='isLandlord', id='inlineRadio1', value='false') 
+          strong Tenant
+        label.radio-inline
+          input(type='radio', name='isLandlord', id='inlineRadio2', value='true') 
+          strong Landlord
+
+      .form-group
         button.btn.btn-success(type='submit')
           span.ion-person-add
           | Register

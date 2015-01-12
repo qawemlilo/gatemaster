@@ -1,16 +1,16 @@
-(function () {
+(function ($) {
 
-  var button = document.getElementById('openGate');
+  $('.removetenant').on('click', function () {
+    var link = this;
+    var cell = $(link).data('cell');
 
-  button.onclick = function () {
-    button.disabled = true;
-
-    atomic.get('/opengate?t=' + new Date().getTime())
+    $.get('/removetenant/' + cell + '/?t=' + new Date().getTime())
     .success(function (data, xhr) {
-      button.disabled = false;
+      $(link).parent().parent().addClass('warning').fadeOut('slow');
     })
-    // this doesn't really work, its never called
-    .error(function (data, xhr) {});
-  };
+    .error(function (data) {
+      alert('Error! failed to delete tenant');
+    });
+  });
 
-})();
+})(jQuery);

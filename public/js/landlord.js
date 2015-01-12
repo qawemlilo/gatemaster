@@ -13,5 +13,6 @@
  * scripts down below using //= filename.js notation.
  */
 
-//= require lib/atomic
+//= require lib/jquery-2.1.1.min
+//= require lib/bootstrap.min
 //= require main

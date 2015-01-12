@@ -5,7 +5,8 @@ var _ = require('lodash');
 
 
 exports.fetch = function(req, res) {
-  User.find(function (error, users) {
+  
+  User.find(req.query,  function (error, users) {
 
     if (error) {
       return res.status(500).json({error: true, message: error.message});
@@ -30,14 +31,9 @@ exports.add = function(req, res) {
     return res.status(500).json({error: true, errors: errors});
   }
 
-  var user = new User({
-    name: req.body.name,
-    complex: req.body.complex,
-    cell: req.body.cell.trim().replace(/ /g, ''),
-    password: req.body.password
-  });
+  var user = new User(req.body);
 
-  User.findOne({cell: req.body.cell}, function(err, existingUser) {
+  User.findOne({cell: req.body.cell.trim().replace(/ /g, '')}, function(err, existingUser) {
     if (existingUser) {
       return res.status(500).json({error: true, message: 'Account with that cell number already exists.'});
     }
@@ -78,13 +74,7 @@ exports.update = function(req, res, next) {
       return res.status(500).json({error: false, message: 'User does not exists.'});
     }
 
-    user.cell = req.body.cell || user.cell;
-    user.name = req.body.name || user.name;
-    user.password = req.body.password || user.password;
-    user.role = req.body.role || user.role;
-    user.paid = req.body.paid || user.paid;
-    user.complex = req.body.complex || user.complex;
-    user.unitNumber = req.body.unitNumber || user.unitNumber;
+    _.extend(user, req.body);
 
 
     user.save(function(err) {

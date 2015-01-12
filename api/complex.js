@@ -1,10 +1,10 @@
 
-
+var _ = require('lodash');
 var Complex = require('../models/complex');
 
 
 exports.fetch = function(req, res) {
-  Complex.find(function (error, complexes) {
+  Complex.find(req.query, function (error, complexes) {
 
     if (error) {
       return res.status(500).json({error: true, message: error.message});
@@ -24,14 +24,9 @@ exports.add = function(req, res, next) {
     return res.status(500).json({error: true, message: 'Invalid input'});
   }
 
-  var data = {
-    name: req.body.name,
-    suburb: req.body.suburb,
-  }; 
+  var complex = new Complex(req.body);
 
-  var complex = new Complex(data);
-
-  Complex.findOne(data, function(err, existingComplex) {
+  Complex.findOne(req.body, function(err, existingComplex) {
     if (existingComplex) {
       return res.status(500).json({error: true, message: 'That Complex already exists.'});
     }
@@ -64,8 +59,7 @@ exports.update = function(req, res, next) {
       return res.status(500).json({error: false, message: 'Complex does not exists.'});
     }
 
-    complex.name = req.body.name || complex.name;
-    complex.suburb = req.body.suburb || complex.suburb;
+    _.extend(complex, req.body);
 
     complex.save(function(err) {
       if (err) return res.status(500).json({error: true, message: err.message});

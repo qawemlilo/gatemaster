@@ -11,6 +11,58 @@ var agenda = require('../lib/agenda')();
 
 
 
+exports.removeTenant = function(req, res, next) {
+  User.findOne({cell: req.params.cell.trim().replace(/ /g, '')}, function (err, user) {
+    if (err) {
+      return res.status(500).json({error: true, message: err.message});
+    }
+
+    user.landlord = null;
+    user.deletedAt = new Date();
+
+    user.save(function (error) {
+      if (error) return res.status(500).json({error: true, message: error.message});
+      
+      res.json({error: false, message: 'Tenant deleted'});
+    });
+  });
+};
+
+exports.addTenant = function(req, res, next) {
+  req.assert('cell', 'Cell number should be 10 digits long').len(10);
+
+  var errors = req.validationErrors();
+
+  if (errors) {
+    req.flash('errors', errors);
+    return res.redirect('/');
+  }
+
+  User.findOne({cell: req.body.cell.trim().replace(/ /g, '')}, function (err, user) {
+    if (err) {
+      req.flash('errors', {msg: err.message});
+      return res.redirect('/');
+    }
+    if (!user) {
+      req.flash('errors', {msg: 'Your tenant is not available on our system. Please ask them to register first.'});
+      return res.redirect('/');
+    }
+
+    user.landlord = req.user.id;
+
+    if (user.deletedAt) {
+      user.deletedAt = null;
+    }
+
+    user.save(function (error) {
+      if (error) req.flash('errors', {msg: error.message});
+      
+      res.redirect('/');
+    });
+  });
+};
+
+
 exports.getSignup = function(req, res) {
   if (req.user) return res.redirect('/');
 
@@ -21,6 +73,7 @@ exports.getSignup = function(req, res) {
     });
   });
 };
+
 
 /**
  * POST /login
@@ -84,14 +137,17 @@ exports.postSignup = function(req, res, next) {
     return res.redirect('/signup');
   }
 
+  var cell = req.body.cell.trim().replace(/ /g, '');
+
   var user = new User({
     name: req.body.name,
     complex: req.body.complex,
-    cell: req.body.cell.trim().replace(/ /g, ''),
+    cell: cell,
+    isLandlord: !!req.body.isLandlord,
     password: req.body.password
   });
 
-  User.findOne({cell: req.body.cell}, function(err, existingUser) {
+  User.findOne({cell: cell}, function(err, existingUser) {
     if (existingUser) {
       req.flash('errors', { msg: 'Account with that cell number already exists.' });
       return res.redirect('/signup');
@@ -99,9 +155,9 @@ exports.postSignup = function(req, res, next) {
     user.save(function(err) {
       if (err) return next(err);
 
-      agenda.now('welcome sms', {cellNumber: req.body.cell});
-      agenda.schedule('in 5 minutes', 'payment check', {cellNumber: req.body.cell});
-      agenda.schedule('in 1 minutes', 'registration sms', {cellNumber: req.body.cell});
+      agenda.now('welcome sms', {cellNumber: cell});
+      agenda.schedule('in 5 minutes', 'payment check', {cellNumber: cell});
+      agenda.schedule('in 1 minutes', 'registration sms', {cellNumber: cell});
 
       req.logIn(user, function(err) {
         if (err) return next(err);
@@ -192,10 +248,17 @@ exports.postUpdatePassword = function(req, res, next) {
  * Delete user account.
 **/
 exports.postDeleteAccount = function(req, res, next) {
-  User.remove({ _id: req.user.id }, function(err) {
-    if (err) return next(err);
-    req.logout();
-    req.flash('info', { msg: 'Your account has been deleted.' });
+  req.user = new Date();
+
+  req.user.save(function (error) {
+    if (error) {
+      req.flash('error', { msg: error.message }); 
+    }
+    else {
+      req.logout();
+      req.flash('info', { msg: 'Your account has been deleted.' });
+    }
+
     res.redirect('/');
   });
 };
