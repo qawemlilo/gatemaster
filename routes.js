@@ -22,5 +22,6 @@ module.exports.setup = function (app) {
   app.post('/addtenant', userController.addTenant);
   app.get('/removetenant/:cell', userController.removeTenant);
   app.get('/opengate', complexController.openGate);
+  app.post('/inbound', twilioController.inbound);
 
 };

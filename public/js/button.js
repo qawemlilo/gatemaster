@@ -2,7 +2,8 @@
 
   var button = $('#openGate');
 
-  button.on('click', function () {
+  button.on('click', function (e) {
+    e.preventDefault();
     button.attr('disabled', true);
 
     $.get('/opengate?t=' + new Date().getTime())
@@ -11,7 +12,6 @@
     })
     .error(function (data) {
       button.attr('disabled', false);
-      console.log(data.responseText);
     });
   });
 

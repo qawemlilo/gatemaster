@@ -20,7 +20,7 @@ function makeCall (from, to, fn) {
   client.makeCall({
     to: to, // a number to call
     from: from, // a Twilio number you own
-    url: 'http://twimlets.com/echo?Twiml=%3CResponse%3E%3CSay%3EHello%3C%2FSay%3E%3C%2FResponse%3E' // A URL containing TwiML instructions for the call
+    url: 'https://gatemaster.herokuapp.com/inbound' // A URL containing TwiML instructions for the call
   })
   .then(function(call) {
     console.log('Call success! Call SID: '+ call.sid);

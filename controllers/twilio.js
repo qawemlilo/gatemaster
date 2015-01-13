@@ -89,7 +89,8 @@ exports.inbound = function (req, res, next) {
     voice: 'woman',
     language: 'en-gb'
   };
-
+  
+  /*
   twiml.say(msgOne)
   .pause({
     length: 1
@@ -103,7 +104,9 @@ exports.inbound = function (req, res, next) {
     length: 1
   })
   .say('Good bye')
-  .say('Good bye', options);
+  .say('Good bye', options);*/
+
+  twiml.say('Hello');
 
   res.set('Content-Type', 'text/xml');
   res.end(twiml.toString());

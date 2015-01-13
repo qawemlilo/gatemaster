@@ -6,8 +6,6 @@ var twilio = twilioModule(config.twilio.sid, config.twilio.token);
 var client = new twilioModule.RestClient(config.twilio.sid, config.twilio.token);
 
 
-
-
 exports.sendSMS = function (numberTo, message, fn) {
   numberTo = numberTo.trim().replace(/ /g, '');
 
