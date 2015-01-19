@@ -1,13 +1,13 @@
 
 
-var _ = require('lodash');
-var async = require('async');
-var crypto = require('crypto');
+var _        = require('lodash');
+var async    = require('async');
+var crypto   = require('crypto');
 var passport = require('passport');
-var User = require('../models/user');
-var Complex = require('../models/complex');
-var twilio = require('./twilio');
-var agenda = require('../lib/agenda')();
+var User     = require('../models/user');
+var Complex  = require('../models/complex');
+var twilio   = require('./twilio');
+var agenda   = require('../lib/agenda')();
 
 
 
@@ -100,7 +100,6 @@ exports.postLogin = function(req, res, next) {
     }
     req.logIn(user, function(err) {
       if (err) return next(err);
-      //req.flash('success', { msg: 'Success! You are logged in.' });
       res.redirect(req.session.returnTo || '/');
     });
   })(req, res, next);

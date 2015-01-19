@@ -18,17 +18,17 @@ var complexSchema = new mongoose.Schema({
     type: String
   },
 
-  createdAt: {
-    type: Date
-  },
 
-
-  sendTo: {
+  gateNumber: {
     type: String
   },
 
-  numbers: {
+  verifiedNumbers: {
     type: Array
+  },
+
+  createdAt: {
+    type: Date
   },
 
   modifiedAt: {
@@ -36,6 +36,7 @@ var complexSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
 
 complexSchema.pre('save', function(next) {
   var complex = this;

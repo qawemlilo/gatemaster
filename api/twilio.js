@@ -1,12 +1,12 @@
 
 
-var config = require('../config');
+var config       = require('../config');
 var twilioModule = require('twilio');
-var twilio = twilioModule(config.twilio.sid, config.twilio.token);
-var client = new twilioModule.RestClient(config.twilio.sid, config.twilio.token);
+var twilio       = twilioModule(config.twilio.sid, config.twilio.token);
+var client       = new twilioModule.RestClient(config.twilio.sid, config.twilio.token);
 
 
-exports.sendSMS = function (numberTo, message, fn) {
+module.exports.sendSMS = function (numberTo, message, fn) {
   numberTo = numberTo.trim().replace(/ /g, '');
 
   if (numberTo.indexOf(0) === '0') {
@@ -21,7 +21,7 @@ exports.sendSMS = function (numberTo, message, fn) {
 };
 
 
-exports.makeCall = function (req, res) {
+module.exports.makeCall = function (req, res) {
   var cell = req.body.cell;
   var numberTo = cell.trim().replace(/ /g, '');
 
@@ -48,7 +48,7 @@ exports.makeCall = function (req, res) {
 };
 
 
-exports.inbound = function (req, res, next) {
+module.exports.inbound = function (req, res, next) {
   var twiml = new twilio.TwimlResponse();
   var options = {
     voice: 'woman',

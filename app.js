@@ -35,6 +35,7 @@ var cronjobs = require('./jobs');
  */
 var app = express();
 
+
 /**
  * Connect to MongoDB.
 **/
@@ -48,7 +49,7 @@ app.use(compress());
 app.use(connectAssets({
   paths: [path.join(__dirname, 'public/css'), path.join(__dirname, 'public/js')]
 }));
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
+app.use(express.static(path.join(__dirname, 'public'), {maxAge: 31557600000}));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -59,7 +60,7 @@ app.use(session({
   resave: true,
   saveUninitialized: true,
   secret: config.sessionSecret,
-  store: new MongoStore({ url: config.db, autoReconnect: true }),
+  store: new MongoStore({url: config.db, autoReconnect: true}),
   maxAge: null,
   httpOnly: true
 }));
@@ -78,16 +79,32 @@ app.use(function(req, res, next) {
   next();
 });
 
+
 // Remember original destination before login.
 app.use(middleware.lastUrl());
 
+
+/**
+ * Set up routes
+**/
 routes.setup(app);
 
+
+/**
+ * Set up routes
+**/
 app.use(errorHandler());
 
+
+/**
+ * Start cronjobs
+**/
 cronjobs.start();
 
 
+/**
+ * Start server
+**/
 app.listen(app.get('port'), function() {
   console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
 });

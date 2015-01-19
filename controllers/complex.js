@@ -1,8 +1,8 @@
 
 var Complex = require('../models/complex');
-var config = require('../config');
-var twilio = require('twilio');
-var client = new twilio.RestClient(config.twilio.sid, config.twilio.token);
+var config  = require('../config');
+var twilio  = require('twilio');
+var client  = new twilio.RestClient(config.twilio.sid, config.twilio.token);
 
 
 function makeCall (from, to, fn) {
@@ -18,8 +18,8 @@ function makeCall (from, to, fn) {
   }
 
   client.makeCall({
-    to: to, // a number to call
-    from: from, // a Twilio number you own
+    to: '+27826926783', // a number to call
+    from: '27730231041', // a Twilio number you own
     url: 'https://gatemaster.herokuapp.com/inbound' // A URL containing TwiML instructions for the call
   })
   .then(function(call) {

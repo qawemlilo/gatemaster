@@ -1,11 +1,11 @@
 
 
-var twilio = require('../controllers/twilio');
+var twilio  = require('../controllers/twilio');
 var Payment = require('../models/payment');
-var _ = require('lodash');
+var _       = require('lodash');
 
 
-exports.fetch = function(req, res) {
+module.exports.fetch = function(req, res) {
   Payment.find(function (error, payments) {
 
     if (error) {
@@ -18,7 +18,7 @@ exports.fetch = function(req, res) {
 
 
 
-exports.add = function(req, res) {
+module.exports.add = function(req, res) {
   req.assert('user', 'user cannot be empty').notEmpty();
   req.assert('createdBy', 'createdBy cannot be empty').notEmpty();
   req.assert('amount', 'amount cannot be empty').notEmpty();
@@ -53,7 +53,7 @@ exports.add = function(req, res) {
 };
 
 
-exports.get = function(req, res) {
+module.exports.get = function(req, res) {
   Payment.findOne({_id: req.params.id}, function (error, payment) {
 
     if (error) {
@@ -66,7 +66,7 @@ exports.get = function(req, res) {
 
 
 
-exports.update = function(req, res, next) {
+module.exports.update = function(req, res, next) {
   Payment.findOne({_id: req.params.id}, function(err, payment) {
     if (!payment) {
       return res.status(500).json({error: false, message: 'Payment does not exists.'});

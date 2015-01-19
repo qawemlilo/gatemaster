@@ -1,7 +1,7 @@
 
 
-var config = require('../config');
-var nodemailer = require("nodemailer");
+var config        = require('../config');
+var nodemailer    = require("nodemailer");
 var smtpTransport = nodemailer.createTransport('SMTP', {
   service: 'SendGrid',
   auth: {

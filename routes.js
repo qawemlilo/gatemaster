@@ -19,8 +19,10 @@ module.exports.setup = function (app) {
   app.post('/login', userController.postLogin);
   app.get('/logout', userController.logout);
   app.get('/forgot', userController.getForgot);
+
   app.post('/addtenant', userController.addTenant);
   app.get('/removetenant/:cell', userController.removeTenant);
+  
   app.get('/opengate', complexController.openGate);
   app.post('/inbound', twilioController.inbound);
 

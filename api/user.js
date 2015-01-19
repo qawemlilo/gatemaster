@@ -5,7 +5,7 @@ var twilio = require('../controllers/twilio');
 var _ = require('lodash');
 
 
-exports.fetch = function(req, res) {
+module.exports.fetch = function(req, res) {
   
   User.find(req.query,  function (error, users) {
 
@@ -19,7 +19,7 @@ exports.fetch = function(req, res) {
 
 
 
-exports.add = function(req, res) {
+module.exports.add = function(req, res) {
   req.assert('name', 'Name must be at least 2 characters long').len(2);
   req.assert('cell', 'Cell is not valid').len(10);
   req.assert('complex', 'Complex cannot be empty').notEmpty();
@@ -56,7 +56,7 @@ exports.add = function(req, res) {
 
 
 
-exports.get = function(req, res) {
+module.exports.get = function(req, res) {
   User.findOne({_id: req.params.id}, function (error, user) {
 
     if (error) {
@@ -69,7 +69,7 @@ exports.get = function(req, res) {
 
 
 
-exports.update = function(req, res, next) {
+module.exports.update = function(req, res, next) {
   User.findOne({_id: req.params.id}, function(err, user) {
     if (!user) {
       return res.status(500).json({error: false, message: 'User does not exists.'});
@@ -89,7 +89,7 @@ exports.update = function(req, res, next) {
 
 
 
-exports.del = function(req, res, next) {
+module.exports.del = function(req, res, next) {
   User.remove({_id: req.params.id}, function(err) {
     if (err) {
       return res.status(500).json({error: true, message: err.message});

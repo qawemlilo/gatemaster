@@ -13,7 +13,8 @@ var userSchema = new mongoose.Schema({
 
   cell: {
     type: String, 
-    unique: true
+    unique: true,
+    index: true
   },
 
   password: {
@@ -115,6 +116,10 @@ userSchema.methods.comparePassword = function(candidatePassword, cb) {
     cb(null, isMatch);
   });
 };
+
+userSchema.methods.getComplex = function (callback) {
+  return this.db.model('Complex').findById(this.complex, callback);
+}
 
 
 

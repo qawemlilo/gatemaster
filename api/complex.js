@@ -1,9 +1,10 @@
 
-var _ = require('lodash');
+
+var _       = require('lodash');
 var Complex = require('../models/complex');
 
 
-exports.fetch = function(req, res) {
+module.exports.fetch = function(req, res) {
   Complex.find(req.query, function (error, complexes) {
 
     if (error) {
@@ -16,7 +17,7 @@ exports.fetch = function(req, res) {
 
 
 
-exports.add = function(req, res, next) {
+module.exports.add = function(req, res, next) {
   req.assert('name', 'Name must be at least 2 characters long').len(2);
   req.assert('suburb', 'Suburb must not be empty').notEmpty();
 
@@ -41,7 +42,7 @@ exports.add = function(req, res, next) {
 
 
 
-exports.get = function(req, res) {
+module.exports.get = function(req, res) {
   Complex.findOne({_id: req.params.id}, function (error, complex) {
 
     if (error) {
